@@ -11,6 +11,8 @@ import { CreateUserDto } from 'src/user/dto/create_user.dto';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { UserLoginDto } from './dto/user_login.dto';
+import { Roles } from './decorators/roles.decorator';
+import { Role } from './enums/role.enum';
 
 @Controller('auth')
 export class AuthController {
@@ -32,6 +34,7 @@ export class AuthController {
     return this.authService.login(userDto);
   }
 
+  @Roles(Role.USER)
   @Get('profile')
   async profile(@Req() req: Request) {
     return req.user;

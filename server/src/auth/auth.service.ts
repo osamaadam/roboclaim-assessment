@@ -1,10 +1,13 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/user/dto/create_user.dto';
 import { UserService } from 'src/user/user.service';
+import { Repository } from 'typeorm';
+import { RolesEntity } from '../user/entities/roles.entity';
 import { UserLoginDto } from './dto/user_login.dto';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +17,8 @@ export class AuthService {
     private readonly logger: Logger,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    @InjectRepository(RolesEntity)
+    private readonly rolesRepository: Repository<RolesEntity>,
   ) {}
 
   async validateUser(userDto: UserLoginDto) {

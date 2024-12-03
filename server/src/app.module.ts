@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,6 +9,7 @@ import { JWTStrategy } from './auth/jwt.strategy';
 import { JWTProvider } from './auth/providers/jwt.provider';
 import { RolesProvider } from './auth/providers/roles.provider';
 import { UserModule } from './user/user.module';
+import { UserService } from './user/user.service';
 
 @Module({
   imports: [
@@ -44,4 +45,10 @@ import { UserModule } from './user/user.module';
   controllers: [AppController],
   providers: [AppService, JWTProvider, RolesProvider, JWTStrategy],
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit {
+  constructor(private readonly userService: UserService) {}
+
+  async onModuleInit() {
+    await this.userService.seedRoles();
+  }
+}
