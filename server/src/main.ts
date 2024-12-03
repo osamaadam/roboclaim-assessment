@@ -1,8 +1,9 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { WinstonModule } from 'nest-winston';
 import winston from 'winston';
-import { ValidationPipe } from '@nestjs/common';
+import { AppModule } from './app.module';
+import { ExcludeFieldsInterceptor } from './interceptors/exlude.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -23,7 +24,8 @@ async function bootstrap() {
     }),
   });
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalInterceptors(new ExcludeFieldsInterceptor());
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
