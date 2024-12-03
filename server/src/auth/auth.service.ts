@@ -55,6 +55,10 @@ export class AuthService {
     return this.login(userDto);
   }
 
+  async getUser(username: string) {
+    return this.userService.findUser(username);
+  }
+
   hashPassword(password: string) {
     const hash = bcrypt.hashSync(password, this.saltRounds);
     return hash;

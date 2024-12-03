@@ -14,12 +14,8 @@ export class JWTStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(username: string, password: string) {
-    const userDto = new UserLoginDto();
-    userDto.username = username;
-    userDto.password = password;
-
-    const user = await this.authService.validateUser(userDto);
+  async validate(userDto: UserLoginDto) {
+    const user = await this.authService.getUser(userDto.username);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
