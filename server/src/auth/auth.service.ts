@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/user/dto/create_user.dto';
 import { UserService } from 'src/user/user.service';
 import { UserLoginDto } from './dto/user_login.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly logger: Logger,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async validateUser(userDto: UserLoginDto) {
@@ -39,7 +41,7 @@ export class AuthService {
 
   async login(userDto: UserLoginDto) {
     const user = await this.validateUser(userDto);
-    const token = this.jwtService.sign({ username: user.username });
+    const token = await this.jwtService.signAsync({ username: user.username });
     return {
       user,
       token,

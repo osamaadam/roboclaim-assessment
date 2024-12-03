@@ -4,11 +4,13 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
-export class UserSchema {
+@Unique(['username'])
+export class UserEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

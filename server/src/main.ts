@@ -15,8 +15,12 @@ async function bootstrap() {
             winston.format.timestamp({
               format: 'YYYY-MM-DD HH:mm:ss',
             }),
-            winston.format.printf(({ level, message, timestamp }) => {
-              return `${timestamp} [${level}] ${message}`;
+            winston.format.printf(({ level, message, timestamp, stack }) => {
+              let msg = `${timestamp} [${level}] ${message}`;
+              if (stack) {
+                msg += `\n${stack}`;
+              }
+              return msg;
             }),
           ),
         }),
