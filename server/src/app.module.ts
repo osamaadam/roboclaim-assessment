@@ -1,6 +1,7 @@
-import { Module, OnModuleInit } from '@nestjs/common';
+import { Module, NotAcceptableException, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -37,6 +38,29 @@ import { UserService } from './user/user.service';
           secret: configService.get<string>('JWT_SECRET'),
           signOptions: { expiresIn: '1d' },
         };
+      },
+    }),
+    MulterModule.register({
+      dest: './uploads',
+      fileFilter: (_req, file, cb) => {
+        const allowedMimes = [
+          'image/jpeg',
+          'image/png',
+          'application/pdf',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'application/vnd.ms-excel',
+          'text/csv',
+        ];
+        if (allowedMimes.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(
+            new NotAcceptableException(
+              `Invalid file type (${file.mimetype}): ${file.originalname}`,
+            ),
+            false,
+          );
+        }
       },
     }),
     AuthModule,
