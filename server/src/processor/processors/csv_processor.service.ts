@@ -4,6 +4,6 @@ import { IFileProcessor } from './file_processor.interface';
 @Injectable()
 export class CSVFileProcessor implements IFileProcessor {
   async process(file: Express.Multer.File) {
-    console.log(file);
+    return 'yo';
   }
 }

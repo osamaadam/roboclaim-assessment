@@ -7,6 +7,7 @@ import { CSVFileProcessor } from './processors/csv_processor.service';
 import { ImageProcessorService } from './processors/image_processor.service';
 import { PDFFileProcessor } from './processors/pdf_processor.service';
 import { ProcessorFactoryService } from './processors/processor_factory.service';
+import { XLSXProcessorService } from './processors/xlsx_processor.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([JobLogEntity, FileEntity])],
@@ -17,6 +18,7 @@ import { ProcessorFactoryService } from './processors/processor_factory.service'
     CSVFileProcessor,
     PDFFileProcessor,
     ImageProcessorService,
+    XLSXProcessorService,
   ],
   exports: [ProcessorService, TypeOrmModule],
 })

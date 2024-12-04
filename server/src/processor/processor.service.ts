@@ -10,6 +10,7 @@ import { JobStatus } from './constants/job_status.constant';
 import { JobLogEntity } from './entities/job_log.entity';
 import { ProcessorFactoryService } from './processors/processor_factory.service';
 import { QueuePayload } from './types/queue_payload';
+import { FileEntity } from './entities/file.entity';
 
 type ProcessFileJob = Job<QueuePayload, any, QueueJobs>;
 
@@ -19,6 +20,8 @@ export class ProcessorService extends WorkerHost {
     private readonly logger: Logger,
     @InjectRepository(JobLogEntity)
     private readonly jobLogRepository: Repository<JobLogEntity>,
+    @InjectRepository(FileEntity)
+    private readonly fileRepository: Repository<FileEntity>,
     private readonly processorFactory: ProcessorFactoryService,
   ) {
     super();
@@ -29,7 +32,14 @@ export class ProcessorService extends WorkerHost {
       await this.__preProcess(job);
       const { file } = job.data;
 
-      await this.processorFactory.createProcessor(file).process(file);
+      const content = await this.processorFactory
+        .createProcessor(file)
+        .process(file);
+
+      await this.fileRepository.update(
+        { nameOnDisk: basename(file.path) },
+        { content },
+      );
 
       await this.__postProcess(job);
     } catch (err: any) {
