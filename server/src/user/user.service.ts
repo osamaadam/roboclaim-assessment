@@ -4,13 +4,13 @@ import { Role } from 'src/auth/enums/role.enum';
 import { RolesEntity } from 'src/user/entities/roles.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create_user.dto';
-import { UsersEntity } from './entities/user.entity';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UsersEntity)
-    private readonly userRepository: Repository<UsersEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(RolesEntity)
     private readonly rolesRepository: Repository<RolesEntity>,
   ) {}
@@ -30,7 +30,7 @@ export class UserService {
       throw new Error('User role not found');
     }
 
-    const user = new UsersEntity({
+    const user = new UserEntity({
       ...userDto,
       roles: [userRole],
     });

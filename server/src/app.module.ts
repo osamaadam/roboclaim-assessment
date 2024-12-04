@@ -1,3 +1,4 @@
+import { BullModule } from '@nestjs/bullmq';
 import { Module, NotAcceptableException, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -9,8 +10,10 @@ import { AuthModule } from './auth/auth.module';
 import { JWTStrategy } from './auth/jwt.strategy';
 import { JWTProvider } from './auth/providers/jwt.provider';
 import { RolesProvider } from './auth/providers/roles.provider';
+import { Queues } from './constants/queues.constant';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
+import { ProcessorModule } from './processor/processor.module';
 
 @Module({
   imports: [
@@ -63,8 +66,21 @@ import { UserService } from './user/user.service';
         }
       },
     }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get('REDIS_HOST'),
+          port: configService.get('REDIS_PORT'),
+        },
+      }),
+    }),
+    BullModule.registerQueue({
+      name: Queues.FILE_PROCESSOR,
+    }),
     AuthModule,
     UserModule,
+    ProcessorModule,
   ],
   controllers: [AppController],
   providers: [AppService, JWTProvider, RolesProvider, JWTStrategy],

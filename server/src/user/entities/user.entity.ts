@@ -1,4 +1,5 @@
 import { Exclude } from 'class-transformer';
+import { JobLogEntity } from 'src/processor/entities/job_log.entity';
 import { RolesEntity } from 'src/user/entities/roles.entity';
 import {
   Column,
@@ -6,13 +7,14 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('users')
-export class UsersEntity {
-  constructor(partial: Partial<UsersEntity>) {
+export class UserEntity {
+  constructor(partial: Partial<UserEntity>) {
     Object.assign(this, partial);
   }
 
@@ -35,4 +37,7 @@ export class UsersEntity {
   @ManyToMany(() => RolesEntity, { eager: true })
   @JoinTable()
   roles: RolesEntity[];
+
+  @OneToMany(() => JobLogEntity, (jobLog) => jobLog.user)
+  jobLogs: JobLogEntity[];
 }

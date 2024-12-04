@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { AppService } from './app.service';
+import { UserEntity } from './user/entities/user.entity';
+import { User } from './auth/decorators/user.decorator';
 
 @Controller()
 export class AppController {
@@ -19,13 +21,10 @@ export class AppController {
 
   @Post('/upload')
   @UseInterceptors(FilesInterceptor('files'))
-  async uploadFiles(@UploadedFiles() files: Express.Multer.File[]) {
-    return {
-      message: 'Files uploaded successfully',
-      files: files.map((file) => ({
-        ...file,
-        filename: undefined,
-      })),
-    };
+  async uploadFiles(
+    @UploadedFiles() files: Express.Multer.File[],
+    @User() user: UserEntity,
+  ) {
+    return this.appService.processFiles(files, user);
   }
 }

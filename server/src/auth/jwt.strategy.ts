@@ -24,6 +24,9 @@ export class JWTStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return user;
+    return {
+      ...user,
+      password: undefined,
+    };
   }
 }
