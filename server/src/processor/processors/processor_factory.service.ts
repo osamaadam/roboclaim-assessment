@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CSVFileProcessor } from './csv_processor.service';
 import { IFileProcessor } from './file_processor.interface';
 import { ImageProcessorService } from './image_processor.service';
-import { PDFFileProcessor } from './pdf_process.service';
+import { PDFFileProcessor } from './pdf_processor.service';
 
 @Injectable()
 export class ProcessorFactoryService {

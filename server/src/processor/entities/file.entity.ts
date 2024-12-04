@@ -30,6 +30,9 @@ export class FileEntity {
   @Column()
   size: number;
 
+  @Column({ name: 'content', nullable: true })
+  content: string;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

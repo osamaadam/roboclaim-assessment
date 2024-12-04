@@ -2,14 +2,14 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Job } from 'bullmq';
+import { basename } from 'path';
 import { QueueJobs } from 'src/constants/queue_jobs.constant';
 import { Queues } from 'src/constants/queues.constant';
 import { Repository } from 'typeorm';
 import { JobStatus } from './constants/job_status.constant';
 import { JobLogEntity } from './entities/job_log.entity';
-import { QueuePayload } from './types/queue_payload';
 import { ProcessorFactoryService } from './processors/processor_factory.service';
-import { FileEntity } from './entities/file.entity';
+import { QueuePayload } from './types/queue_payload';
 
 type ProcessFileJob = Job<QueuePayload, any, QueueJobs>;
 
@@ -19,8 +19,6 @@ export class ProcessorService extends WorkerHost {
     private readonly logger: Logger,
     @InjectRepository(JobLogEntity)
     private readonly jobLogRepository: Repository<JobLogEntity>,
-    @InjectRepository(FileEntity)
-    private readonly fileRepository: Repository<FileEntity>,
     private readonly processorFactory: ProcessorFactoryService,
   ) {
     super();
@@ -40,17 +38,29 @@ export class ProcessorService extends WorkerHost {
   }
 
   private async __preProcess(job: ProcessFileJob) {
-    return this.jobLogRepository.update(
+    await this.jobLogRepository.update(
       { jobId: job.id },
       { status: JobStatus.PROCESSING },
     );
+
+    this.logger.log({
+      message: `Started processing job ${job.id}`,
+      jobId: job.id,
+      file: basename(job.data.file.path),
+    });
   }
 
   private async __postProcess(job: ProcessFileJob) {
-    return this.jobLogRepository.update(
+    await this.jobLogRepository.update(
       { jobId: job.id },
       { status: JobStatus.COMPLETED },
     );
+
+    this.logger.log({
+      message: `Finished processing job ${job.id}`,
+      jobId: job.id,
+      file: basename(job.data.file.path),
+    });
   }
 
   private async __handleError(job: ProcessFileJob, err: any) {
@@ -58,6 +68,7 @@ export class ProcessorService extends WorkerHost {
       {
         message: err.message,
         jobId: job.id,
+        file: basename(job.data.file.path),
       },
       err.stack,
       ProcessorService.name,

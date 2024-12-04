@@ -10,6 +10,7 @@ import { FileEntity } from './processor/entities/file.entity';
 import { JobLogEntity } from './processor/entities/job_log.entity';
 import { QueuePayload } from './processor/types/queue_payload';
 import { UserEntity } from './user/entities/user.entity';
+import { resolve } from 'path';
 
 @Injectable()
 export class AppService {
@@ -31,6 +32,7 @@ export class AppService {
     user: Omit<UserEntity, 'password'>,
   ) {
     for (const file of files) {
+      file.path = resolve(file.path);
       const payload: QueuePayload = {
         user,
         file,
