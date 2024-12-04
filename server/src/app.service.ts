@@ -43,6 +43,7 @@ export class AppService {
         status: JobStatus.PENDING,
         user: new UserEntity(user),
         jobId: job.id,
+        mimetype: file.mimetype,
       });
     });
 

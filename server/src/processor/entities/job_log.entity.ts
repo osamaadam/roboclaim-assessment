@@ -27,6 +27,9 @@ export class JobLogEntity {
   @Column()
   fileName: string;
 
+  @Column()
+  mimetype: string;
+
   @Column({ nullable: true })
   error?: string;
 

@@ -77,6 +77,15 @@ import { ProcessorModule } from './processor/processor.module';
     }),
     BullModule.registerQueue({
       name: Queues.FILE_PROCESSOR,
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 1000,
+        },
+        removeOnComplete: true,
+        delay: 5 * 1000,
+      },
     }),
     AuthModule,
     UserModule,

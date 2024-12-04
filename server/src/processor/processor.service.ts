@@ -8,6 +8,9 @@ import { Repository } from 'typeorm';
 import { JobStatus } from './constants/job_status.constant';
 import { JobLogEntity } from './entities/job_log.entity';
 import { QueuePayload } from './types/queue_payload';
+import { ProcessorFactoryService } from './processors/processor_factory.service';
+
+type ProcessFileJob = Job<QueuePayload, any, QueueJobs>;
 
 @Processor(Queues.FILE_PROCESSOR)
 export class ProcessorService extends WorkerHost {
@@ -15,18 +18,17 @@ export class ProcessorService extends WorkerHost {
     private readonly logger: Logger,
     @InjectRepository(JobLogEntity)
     private readonly jobLogRepository: Repository<JobLogEntity>,
+    private readonly processorFactory: ProcessorFactoryService,
   ) {
     super();
   }
 
-  async process(job: Job<QueuePayload, any, QueueJobs>) {
+  async process(job: ProcessFileJob) {
     for (const file of job.data.files) {
       try {
         await this.__preProcess(job);
 
-        this.logger.log(
-          `Processing file ${file.originalname} for user: ${job.data.user.username}`,
-        );
+        await this.processorFactory.createProcessor(file).process(file);
 
         await this.__postProcess(job);
       } catch (err: any) {
@@ -35,24 +37,21 @@ export class ProcessorService extends WorkerHost {
     }
   }
 
-  private async __preProcess(job: Job<QueuePayload, any, QueueJobs>) {
+  private async __preProcess(job: ProcessFileJob) {
     return this.jobLogRepository.update(
       { jobId: job.id },
       { status: JobStatus.PROCESSING },
     );
   }
 
-  private async __postProcess(job: Job<QueuePayload, any, QueueJobs>) {
+  private async __postProcess(job: ProcessFileJob) {
     return this.jobLogRepository.update(
       { jobId: job.id },
       { status: JobStatus.COMPLETED },
     );
   }
 
-  private async __handleError(
-    job: Job<QueuePayload, any, QueueJobs>,
-    err: any,
-  ) {
+  private async __handleError(job: ProcessFileJob, err: any) {
     this.logger.error(
       {
         message: err.message,
