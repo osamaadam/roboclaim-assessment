@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { QueueJobs } from './constants/queue_jobs.constant';
 import { Queues } from './constants/queues.constant';
 import { JobStatus } from './processor/constants/job_status.constant';
+import { FileEntity } from './processor/entities/file.entity';
 import { JobLogEntity } from './processor/entities/job_log.entity';
 import { QueuePayload } from './processor/types/queue_payload';
 import { UserEntity } from './user/entities/user.entity';
@@ -17,6 +18,8 @@ export class AppService {
     private readonly fileProcessorQueue: Queue,
     @InjectRepository(JobLogEntity)
     private readonly jobLogRepository: Repository<JobLogEntity>,
+    @InjectRepository(FileEntity)
+    private readonly fileRepository: Repository<FileEntity>,
   ) {}
 
   getHello(): string {
@@ -27,27 +30,37 @@ export class AppService {
     files: Express.Multer.File[],
     user: Omit<UserEntity, 'password'>,
   ) {
-    const payload: QueuePayload = {
-      user,
-      files,
-    };
+    for (const file of files) {
+      const payload: QueuePayload = {
+        user,
+        file,
+      };
 
-    const job = await this.fileProcessorQueue.add(
-      QueueJobs.PROCESS_FILES,
-      payload,
-    );
+      const fileEntity = new FileEntity({
+        nameOnDisk: file.filename,
+        originalName: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+      });
 
-    const logEntries = files.map((file) => {
-      return new JobLogEntity({
-        fileName: file.originalname,
+      const fileEntitySavePromise = this.fileRepository.save(fileEntity);
+
+      const jobPromise = this.fileProcessorQueue.add(
+        QueueJobs.PROCESS_FILES,
+        payload,
+      );
+
+      const [job] = await Promise.all([jobPromise, fileEntitySavePromise]);
+
+      const jobLogEntry = new JobLogEntity({
         status: JobStatus.PENDING,
         user: new UserEntity(user),
         jobId: job.id,
-        mimetype: file.mimetype,
+        file: fileEntity,
       });
-    });
 
-    await this.jobLogRepository.save(logEntries);
+      await this.jobLogRepository.save(jobLogEntry);
+    }
 
     return {
       message: 'Files uploaded successfully, will be processed shortly.',

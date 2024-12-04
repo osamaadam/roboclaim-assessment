@@ -3,11 +3,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { JobStatus } from '../constants/job_status.constant';
+import { FileEntity } from './file.entity';
 
 @Entity('job_log')
 export class JobLogEntity {
@@ -18,27 +21,26 @@ export class JobLogEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ name: 'job_id' })
   jobId: string;
 
   @Column({ enum: JobStatus, default: JobStatus.PENDING })
   status: JobStatus;
 
-  @Column()
-  fileName: string;
-
-  @Column()
-  mimetype: string;
-
   @Column({ nullable: true })
   error?: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
   @ManyToOne(() => UserEntity, (user) => user.jobLogs)
+  @JoinColumn({ name: 'user_id' })
   user: UserEntity;
+
+  @OneToOne(() => FileEntity, (file) => file.jobLog)
+  @JoinColumn({ name: 'file_id' })
+  file: FileEntity;
 }
