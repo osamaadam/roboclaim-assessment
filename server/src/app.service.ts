@@ -31,6 +31,7 @@ export class AppService {
     files: Express.Multer.File[],
     user: Omit<UserEntity, 'password'>,
   ) {
+    const savedFiles: FileEntity[] = [];
     for (const file of files) {
       file.path = resolve(file.path);
       const payload: QueuePayload = {
@@ -52,7 +53,16 @@ export class AppService {
         payload,
       );
 
-      const [job] = await Promise.all([jobPromise, fileEntitySavePromise]);
+      const [job, savedFileEntity] = await Promise.all([
+        jobPromise,
+        fileEntitySavePromise,
+      ]);
+
+      savedFiles.push({
+        ...savedFileEntity,
+        user: undefined,
+        nameOnDisk: undefined,
+      } as any);
 
       const jobLogEntry = new JobLogEntity({
         status: JobStatus.PENDING,
@@ -65,10 +75,7 @@ export class AppService {
 
     return {
       message: 'Files uploaded successfully, will be processed shortly.',
-      files: files.map((file) => ({
-        ...file,
-        filename: undefined,
-      })),
+      files: savedFiles,
     };
   }
 }

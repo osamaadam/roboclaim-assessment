@@ -1,6 +1,7 @@
 import { signIn, useSession } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { Button, TextField } from "@mui/material";
 
 const SignInPage = () => {
   const [username, setUsername] = useState("");
@@ -24,37 +25,34 @@ const SignInPage = () => {
   };
 
   if (status === "authenticated") {
-    router.push("/"); // Redirect authenticated users to the home page
+    router.replace("/");
   }
 
   return (
-    <div>
-      <h1>Sign In</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="username">Email</label>
-          <input
-            id="username"
-            type="email"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+    <main className="signin__container">
+      <h1>Sign In / Sign Up</h1>
+      <form className="signin__container__form" onSubmit={handleSubmit}>
+        <TextField
+          id="username"
+          label="Email"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+        <TextField
+          id="password"
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
         {error && <p style={{ color: "red" }}>{error}</p>}
-        <button type="submit">Sign In</button>
+        <Button variant="contained" type="submit">
+          Sign In
+        </Button>
       </form>
-    </div>
+    </main>
   );
 };
 

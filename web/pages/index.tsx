@@ -1,16 +1,23 @@
+import FileDisplay from "@/components/file_display";
+import { FileEntity } from "@/types/file_entity.type";
+import { CloudUpload } from "@mui/icons-material";
+import { Alert, Button } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<FileEntity[]>([]);
+  const [resMsg, setResMsg] = useState("");
 
   useEffect(() => {
     if (status == "unauthenticated") {
       router.push("/auth/signin");
     }
-  }, [status]);
+  }, [router, status]);
 
   const handleFilesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -21,6 +28,7 @@ export default function Home() {
       formData.append("files", file);
     }
 
+    setIsLoading(true);
     const res = await fetch("http://localhost:4000/upload", {
       method: "POST",
       body: formData,
@@ -30,22 +38,47 @@ export default function Home() {
     });
 
     if (res.ok) {
-      alert("File uploaded successfully");
+      const {
+        files,
+        message,
+      }: {
+        files: FileEntity[];
+        message: string;
+      } = await res.json();
+
+      setUploadedFiles(files);
+      setResMsg(message);
     } else {
       alert("Failed to upload file");
     }
+    setIsLoading(false);
   };
 
   return (
-    <div>
-      <h1>Home</h1>
+    <main>
       <p>Welcome, {session?.user?.username}</p>
-      <input
-        type="file"
-        accept="image/jpeg, image/png, application/pdf, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv"
-        multiple
-        onChange={handleFilesUpload}
-      />
-    </div>
+      <Button
+        component="label"
+        role={undefined}
+        variant="contained"
+        tabIndex={-1}
+        startIcon={<CloudUpload />}
+      >
+        Upload files
+        <input
+          type="file"
+          onChange={handleFilesUpload}
+          multiple
+          disabled={isLoading}
+          accept="image/jpeg, image/png, application/pdf, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv"
+        />
+      </Button>
+      {uploadedFiles.length > 0 ? (
+        <>
+          <Alert severity="success">{resMsg}</Alert>
+          <FileDisplay files={uploadedFiles} />
+        </>
+      ) : null}
+    </main>
   );
 }

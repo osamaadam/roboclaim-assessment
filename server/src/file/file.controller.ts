@@ -15,7 +15,12 @@ export class FileController {
   ) {
     page ||= 1;
     pageSize ||= 10;
-    return this.fileService.getFiles(user, page - 1, pageSize);
+    const files = await this.fileService.getFiles(user, page - 1, pageSize);
+
+    return files.map((file) => ({
+      ...file,
+      content: file.content?.slice(0, 100),
+    }));
   }
 
   @Get('insights')

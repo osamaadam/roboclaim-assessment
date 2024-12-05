@@ -22,6 +22,10 @@ export class UserService {
   }
 
   async createUser(userDto: CreateUserDto) {
+    const existingUser = await this.findUser(userDto.username);
+    if (existingUser) {
+      return existingUser;
+    }
     const userRole = await this.rolesRepository.findOneBy({
       role: Role.USER,
     });
