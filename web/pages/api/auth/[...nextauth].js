@@ -16,6 +16,12 @@ export default NextAuth({
           body: JSON.stringify(credentials),
         });
 
+        if (!response.ok) {
+          const error = new Error("Invalid credentials");
+          error.status = response.status;
+          throw error;
+        }
+
         const { user, token: jwt } = await response.json();
 
         return {
