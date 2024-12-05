@@ -7,10 +7,8 @@ export default function Profile() {
   const router = useRouter();
 
   useEffect(() => {
-    if (status !== "authenticated") {
+    if (status == "unauthenticated") {
       router.push("/auth/signin");
-    } else {
-      console.log(session);
     }
   }, [status]);
 

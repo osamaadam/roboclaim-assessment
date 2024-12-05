@@ -20,13 +20,11 @@ const SignInPage = () => {
 
     if (res?.error) {
       setError("Invalid email or password");
-    } else {
-      router.push("/"); // Redirect to home or any other page after successful sign-in
     }
   };
 
   if (status === "authenticated") {
-    router.push("/profile"); // Redirect authenticated users to the home page
+    router.push("/"); // Redirect authenticated users to the home page
   }
 
   return (

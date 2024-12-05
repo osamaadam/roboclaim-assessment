@@ -16,22 +16,6 @@ declare module "next-auth" {
         role: string;
       }[];
     };
-  }
-
-  /**
-   * User object returned by the `authorize` callback and `getUser` function
-   */
-  interface User extends DefaultUser {
-    user: {
-      id: number;
-      username: string;
-      createdAt: string;
-      updatedAt: string;
-      roles: {
-        id: number;
-        role: string;
-      }[];
-    };
     jwt: string;
   }
 }
