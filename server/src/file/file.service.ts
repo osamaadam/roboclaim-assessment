@@ -46,4 +46,18 @@ export class FileService {
       },
     });
   }
+
+  async getInsights(user: UserEntity) {
+    return this.fileRepository
+      .createQueryBuilder('f')
+      .select([
+        'mimetype',
+        'COUNT(*) as count',
+        "SUM(CASE WHEN jl.status = 'FAILED' THEN 1 ELSE 0 END) as failed",
+      ])
+      .innerJoin('f.jobLog', 'jl')
+      .where('f.user_id = :userId', { userId: user.id })
+      .groupBy('mimetype')
+      .execute();
+  }
 }
