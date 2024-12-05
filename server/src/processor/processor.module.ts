@@ -1,6 +1,6 @@
 import { Logger, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FileEntity } from './entities/file.entity';
+import { FileModule } from 'src/file/file.module';
 import { JobLogEntity } from './entities/job_log.entity';
 import { ProcessorService } from './processor.service';
 import { CSVFileProcessor } from './processors/csv_processor.service';
@@ -10,7 +10,7 @@ import { ProcessorFactoryService } from './processors/processor_factory.service'
 import { XLSXProcessorService } from './processors/xlsx_processor.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([JobLogEntity, FileEntity])],
+  imports: [TypeOrmModule.forFeature([JobLogEntity]), FileModule],
   providers: [
     ProcessorService,
     Logger,

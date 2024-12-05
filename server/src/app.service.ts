@@ -2,15 +2,16 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Queue } from 'bullmq';
+import { resolve } from 'path';
 import { Repository } from 'typeorm';
 import { QueueJobs } from './constants/queue_jobs.constant';
 import { Queues } from './constants/queues.constant';
+import { FileEntity } from './file/entities/file.entity';
+import { FileService } from './file/file.service';
 import { JobStatus } from './processor/constants/job_status.constant';
-import { FileEntity } from './processor/entities/file.entity';
 import { JobLogEntity } from './processor/entities/job_log.entity';
 import { QueuePayload } from './processor/types/queue_payload';
 import { UserEntity } from './user/entities/user.entity';
-import { resolve } from 'path';
 
 @Injectable()
 export class AppService {
@@ -19,8 +20,7 @@ export class AppService {
     private readonly fileProcessorQueue: Queue,
     @InjectRepository(JobLogEntity)
     private readonly jobLogRepository: Repository<JobLogEntity>,
-    @InjectRepository(FileEntity)
-    private readonly fileRepository: Repository<FileEntity>,
+    private readonly fileService: FileService,
   ) {}
 
   getHello(): string {
@@ -34,7 +34,6 @@ export class AppService {
     for (const file of files) {
       file.path = resolve(file.path);
       const payload: QueuePayload = {
-        user,
         file,
       };
 
@@ -43,9 +42,10 @@ export class AppService {
         originalName: file.originalname,
         mimetype: file.mimetype,
         size: file.size,
+        user: new UserEntity(user),
       });
 
-      const fileEntitySavePromise = this.fileRepository.save(fileEntity);
+      const fileEntitySavePromise = this.fileService.createFile(fileEntity);
 
       const jobPromise = this.fileProcessorQueue.add(
         QueueJobs.PROCESS_FILES,
@@ -56,7 +56,6 @@ export class AppService {
 
       const jobLogEntry = new JobLogEntity({
         status: JobStatus.PENDING,
-        user: new UserEntity(user),
         jobId: job.id,
         file: fileEntity,
       });

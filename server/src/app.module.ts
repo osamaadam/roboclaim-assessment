@@ -11,9 +11,10 @@ import { JWTStrategy } from './auth/jwt.strategy';
 import { JWTProvider } from './auth/providers/jwt.provider';
 import { RolesProvider } from './auth/providers/roles.provider';
 import { Queues } from './constants/queues.constant';
+import { FileModule } from './file/file.module';
+import { ProcessorModule } from './processor/processor.module';
 import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
-import { ProcessorModule } from './processor/processor.module';
 
 @Module({
   imports: [
@@ -90,6 +91,7 @@ import { ProcessorModule } from './processor/processor.module';
     AuthModule,
     UserModule,
     ProcessorModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [AppService, JWTProvider, RolesProvider, JWTStrategy],

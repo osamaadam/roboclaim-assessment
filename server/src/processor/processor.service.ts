@@ -5,12 +5,12 @@ import { Job } from 'bullmq';
 import { basename } from 'path';
 import { QueueJobs } from 'src/constants/queue_jobs.constant';
 import { Queues } from 'src/constants/queues.constant';
+import { FileService } from 'src/file/file.service';
 import { Repository } from 'typeorm';
 import { JobStatus } from './constants/job_status.constant';
 import { JobLogEntity } from './entities/job_log.entity';
 import { ProcessorFactoryService } from './processors/processor_factory.service';
 import { QueuePayload } from './types/queue_payload';
-import { FileEntity } from './entities/file.entity';
 
 type ProcessFileJob = Job<QueuePayload, any, QueueJobs>;
 
@@ -20,8 +20,7 @@ export class ProcessorService extends WorkerHost {
     private readonly logger: Logger,
     @InjectRepository(JobLogEntity)
     private readonly jobLogRepository: Repository<JobLogEntity>,
-    @InjectRepository(FileEntity)
-    private readonly fileRepository: Repository<FileEntity>,
+    private readonly fileService: FileService,
     private readonly processorFactory: ProcessorFactoryService,
   ) {
     super();
@@ -36,10 +35,9 @@ export class ProcessorService extends WorkerHost {
         .createProcessor(file)
         .process(file);
 
-      await this.fileRepository.update(
-        { nameOnDisk: basename(file.path) },
-        { content },
-      );
+      const nameOnDisk = basename(file.path);
+
+      await this.fileService.addContentToExistingFile(nameOnDisk, content);
 
       await this.__postProcess(job);
     } catch (err: any) {

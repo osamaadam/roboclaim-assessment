@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { JobLogEntity } from 'src/processor/entities/job_log.entity';
+import { FileEntity } from 'src/file/entities/file.entity';
 import { RolesEntity } from 'src/user/entities/roles.entity';
 import {
   Column,
@@ -38,6 +38,6 @@ export class UserEntity {
   @JoinTable()
   roles: RolesEntity[];
 
-  @OneToMany(() => JobLogEntity, (jobLog) => jobLog.user)
-  jobLogs: JobLogEntity[];
+  @OneToMany(() => FileEntity, (file) => file.user)
+  files: FileEntity[];
 }

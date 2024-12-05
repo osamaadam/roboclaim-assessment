@@ -1,12 +1,15 @@
 import { Exclude } from 'class-transformer';
+import { UserEntity } from 'src/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { JobLogEntity } from './job_log.entity';
+import { JobLogEntity } from '../../processor/entities/job_log.entity';
 
 @Entity('files')
 export class FileEntity {
@@ -38,4 +41,8 @@ export class FileEntity {
 
   @OneToOne(() => JobLogEntity, (jobLog) => jobLog.file)
   jobLog: JobLogEntity;
+
+  @ManyToOne(() => UserEntity, (user) => user.files)
+  @JoinColumn({ name: 'user_id' })
+  user: UserEntity;
 }
