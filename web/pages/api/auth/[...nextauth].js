@@ -10,7 +10,7 @@ export default NextAuth({
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL;
+        const API_URL = process.env.API_URL;
         const authURL = new URL("/auth/register", API_URL);
         const response = await fetch(authURL, {
           method: "POST",
