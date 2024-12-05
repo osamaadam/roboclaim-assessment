@@ -13,14 +13,21 @@ export class FileController {
     @Query('page') page?: number,
     @Query('pageSize') pageSize?: number,
   ) {
-    page ||= 1;
+    page ||= 0;
     pageSize ||= 10;
-    const files = await this.fileService.getFiles(user, page - 1, pageSize);
+    const [files, count] = await this.fileService.getFiles(
+      user,
+      page,
+      pageSize,
+    );
 
-    return files.map((file) => ({
-      ...file,
-      content: file.content?.slice(0, 100),
-    }));
+    return {
+      files: files.map((file) => ({
+        ...file,
+        content: file.content?.slice(0, 100),
+      })),
+      count,
+    };
   }
 
   @Get('insights')

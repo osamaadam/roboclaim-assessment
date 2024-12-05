@@ -29,7 +29,9 @@ export default function Home() {
     }
 
     setIsLoading(true);
-    const res = await fetch("http://localhost:4000/upload", {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+    const requestURL = new URL("/upload", API_URL);
+    const res = await fetch(requestURL, {
       method: "POST",
       body: formData,
       headers: {

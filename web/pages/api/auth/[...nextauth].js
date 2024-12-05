@@ -11,7 +11,7 @@ export default NextAuth({
       },
       authorize: async (credentials) => {
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
-        const authURL = new URL("/auth/register", API_URL).toString();
+        const authURL = new URL("/auth/register", API_URL);
         const response = await fetch(authURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

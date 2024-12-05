@@ -13,7 +13,9 @@ export default function Insights() {
     if (!session) return;
     const { jwt } = session;
     try {
-      const response = await fetch("http://localhost:4000/files/insights", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+      const requestURL = new URL("/files/insights", API_URL);
+      const response = await fetch(requestURL, {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },

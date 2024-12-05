@@ -6,3 +6,8 @@ export type FileEntity = {
   content: string;
   createdAt: string;
 };
+
+export type FileEntityWithCount = {
+  files: FileEntity[];
+  count: number;
+};

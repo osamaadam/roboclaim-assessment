@@ -18,20 +18,14 @@ export class FileService {
     return this.fileRepository.update({ nameOnDisk }, { content });
   }
 
-  async getFiles(
-    user: UserEntity,
-    page: number,
-    pageSize: number = 10,
-  ): Promise<FileEntity[]> {
-    return this.fileRepository.find({
-      where: {
-        user: {
-          id: user.id,
-        },
-      },
-      take: pageSize,
-      skip: page * pageSize,
-    });
+  async getFiles(user: UserEntity, page: number, pageSize: number = 10) {
+    return this.fileRepository
+      .createQueryBuilder('f')
+      .where('f.user_id = :userId', { userId: user.id })
+      .orderBy('f.createdAt', 'DESC')
+      .skip(page * pageSize)
+      .take(pageSize)
+      .getManyAndCount();
   }
 
   async getFile(user: UserEntity, id: number) {

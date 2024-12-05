@@ -1,5 +1,6 @@
 import { Insights } from "@/types/insights.type";
 import {
+  Paper,
   TableBody,
   TableCell,
   TableContainer,
@@ -9,7 +10,7 @@ import {
 
 export default function InsightsTable({ insights }: { insights: Insights[] }) {
   return (
-    <TableContainer>
+    <TableContainer component={Paper}>
       <TableHead>
         <TableRow>
           <TableCell>Mimetype</TableCell>

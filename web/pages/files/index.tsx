@@ -7,13 +7,20 @@ import { useCallback, useEffect, useState } from "react";
 export default function Files() {
   const { data: session, status } = useSession();
   const [files, setFiles] = useState<FileEntity[]>();
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [count, setCount] = useState(0);
   const router = useRouter();
 
   const fetchData = useCallback(async () => {
     if (!session) return;
     const { jwt } = session;
     try {
-      const response = await fetch("http://localhost:4000/files", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+      const requestURL = new URL("/files", API_URL);
+      requestURL.searchParams.append("page", page.toString());
+      requestURL.searchParams.append("pageSize", pageSize.toString());
+      const response = await fetch(requestURL, {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },
@@ -22,11 +29,12 @@ export default function Files() {
         throw new Error("Network response was not ok");
       }
       const resJson = await response.json();
-      setFiles(resJson);
+      setFiles(resJson.files);
+      setCount(resJson.count);
     } catch (error) {
       console.error("There was an error!", error);
     }
-  }, [session, setFiles]);
+  }, [session, setFiles, page, pageSize]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -40,7 +48,17 @@ export default function Files() {
 
   return (
     <main>
-      <FileDisplay files={files} showContent />
+      <FileDisplay
+        files={files}
+        showContent
+        showPagination
+        page={page}
+        pageSize={pageSize}
+        count={count}
+        setPage={setPage}
+        setPageSize={setPageSize}
+        fetchFiles={fetchData}
+      />
     </main>
   );
 }
