@@ -1,9 +1,14 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from './auth.service';
-import { UserLoginDto } from './dto/user_login.dto';
-import { ConfigService } from '@nestjs/config';
+
+type TokenPayload = {
+  username: string;
+  iat: number;
+  exp: number;
+};
 
 @Injectable()
 export class JWTStrategy extends PassportStrategy(Strategy) {
@@ -18,8 +23,8 @@ export class JWTStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(userDto: UserLoginDto) {
-    const user = await this.authService.getUser(userDto.username);
+  async validate(payload: TokenPayload) {
+    const user = await this.authService.getUser(payload.username);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
